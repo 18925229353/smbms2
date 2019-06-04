@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.szxs.mapper.SmbmsBillMapper">
+    <resultMap id="Bill" type="SmbmsBill">
+        <id property="id" column="id"/>
+        <result property="billCode" column="billCode"/>
+        <result property="productName" column="productName"/>
+        <result property="productDesc" column="productDesc"/>
+        <result property="productUnit" column="productUnit"/>
+        <result property="productCount" column="productCount"/>
+        <result property="totalPrice" column="totalPrice"/>
+        <result property="isPayment" column="isPayment"/>
+        <result property="createdBy" column="createdBy"/>
+        <result property="creationDate" column="creationDate"/>
+        <result property="modifyBy" column="modifyBy"/>
+        <result property="modifyDate" column="modifyDate"/>
+        <result property="providerId" column="providerId"/>
+        <association property="smbmsProvider" javaType="SmbmsProvider">
+            <id property="id" column="id"/>
+            <result property="proCode" column="proCode"/>
+            <result property="proName" column="proName"/>
+            <result property="proDesc" column="proDesc"/>
+            <result property="proContact" column="proContact"/>
+            <result property="proPhone" column="proPhone"/>
+            <result property="proAddress" column="proAddress"/>
+            <result property="proFax" column="proFax"/>
+            <result property="createdBy" column="createdBy"/>
+            <result property="creationDate" column="creationDate"/>
+            <result property="modifyDate" column="modifyDate"/>
+            <result property="modifyBy" column="modifyBy"/>
+        </association>
+    </resultMap>
+    <select id="querySmbmsBill" resultMap="Bill">
+        select b.* ,p.proName from smbms_bill b,smbms_provider p
+        <trim prefix="where" prefixOverrides="and">
+            b.providerId=p.id
+            <if test="productName!=null and productName!='' ">
+                and productName like concat('%',#{productName},'%')
+            </if>
+            <if test="providerId>0">
+                and providerId=#{providerId}
+            </if>
+            <if test="isPayment>0">
+                and isPayment=#{isPayment}
+            </if>
+        </trim>
+    </select>
+    <select id="querySmbmsBillByid" resultMap="Bill">
+        select b.* ,p.proName from smbms_bill b,smbms_provider p
+           where  b.providerId=p.id and b.id=#{bId}
+
+    </select>
+    <sql id="pageWhere">
+        <trim prefix="where" prefixOverrides="and">
+            b.providerId=p.id
+            <if test="smbmsBill !=null and smbmsBill.productName !=null and smbmsBill.productName !=''">
+                and productName like concat('%',#{smbmsBill.productName},'%')
+            </if>
+            <if test="smbmsBill !=null and smbmsBill.providerId >0">
+                and providerId =#{smbmsBill.providerId}
+            </if>
+            <if test="smbmsBill !=null and smbmsBill.isPayment >0">
+                and isPayment =#{smbmsBill.isPayment}
+            </if>
+        </trim>
+    </sql>
+
+    <select id="queryTotalRows" resultType="java.lang.Integer">
+        select count(1)from smbms_bill b,smbms_provider p
+        <include refid="pageWhere"></include>
+    </select>
+
+    <select id="querySmbmsBillPage" resultMap="Bill">
+        select b.* ,p.proName,p.id from smbms_bill b,smbms_provider p
+        <include refid="pageWhere"></include>
+        order by creationDate desc
+        limit #{from},#{pageSize}
+    </select>
+    <delete id="deleteSmbmsBillByid">
+        delete from smbms_bill where id=#{bId}
+    </delete>
+    <update id="updateSmbmsBillByid">
+        UPDATE smbms_bill
+        <trim prefix="set" suffixOverrides="," suffix="where id=#{id}">
+            <if test="billCode !=null and billCode !=''">billCode =#{billCode},</if>
+            <if test="productName !=null and productName !=''">productName =#{productName},</if>
+            <if test="productUnit !=null and productUnit !=''">productUnit =#{productUnit},</if>
+            <if test="productCount >0">productCount =#{productCount},</if>
+            <if test="totalPrice >0">totalPrice =#{totalPrice},</if>
+            <if test="providerId >0">providerId =#{providerId},</if>
+            <if test="isPayment >0">isPayment =#{isPayment},</if>
+            <if test="modifyBy >0">modifyBy =#{modifyBy},</if>
+            <if test="modifyDate !=null">modifyDate =#{modifyDate},</if>
+        </trim>
+    </update>
+    <select id="querySmbmsBillByids" resultMap="Bill" >
+        select * from smbms_bill where providerId in
+        <foreach collection="array" item="providerList"
+                 open="(" close=")" separator="," >
+            #{providerList}
+        </foreach>
+    </select>
+    <insert id="addSmbmsBill" >
+        insert into smbms_bill
+        values(default,#{billCode},#{productName},null,#{productUnit},#{productCount},#{totalPrice},#{isPayment},#{createdBy},now(),null,null,#{providerId})
+    </insert>
+    <select id="querySmbmsBillByBillCodeAndids" resultMap="Bill">
+        select * from smbms_bill where billCode like concat('%',#{billCode},'%') and providerId in
+        <foreach collection="providerIds" item="providerList"
+                 open="(" separator="," close=")">
+        #{providerList}
+        </foreach>
+    </select>
+</mapper>
