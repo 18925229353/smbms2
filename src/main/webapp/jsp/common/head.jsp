@@ -44,6 +44,7 @@
      <script language="javascript">
          function exit(){
              this.Close();
+
              window.open('login.jsp');
          }
      </script>

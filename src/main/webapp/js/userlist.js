@@ -6,6 +6,7 @@ function deleteUser(obj){
 		type:"GET",
 		url:path+"/sys/deleteUser/"+obj.attr("userid"),
 		dataType:"json",
+		//
 		success:function(data){
 			if(data.result == "true"){//删除成功：移除删除行
 				alert("删除用户"+userObj.attr("username")+"成功!");

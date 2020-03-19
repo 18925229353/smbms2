@@ -30,7 +30,7 @@ public class ProviderController extends BaseController{
          * @return
          */
         @RequestMapping("/queryAllProvider")
-         public String queryAllProvider(@RequestParam(defaultValue = "1",required = false)Integer pageIndex ,SmbmsProvider provider, Model model){
+        public String queryAllProvider(@RequestParam(defaultValue = "1",required = false)Integer pageIndex ,SmbmsProvider provider, Model model){
         model.addAttribute("providerList",psBiz.querySmbmsProvider(pageIndex, 8, provider));
         model.addAttribute("provider",provider);
         return "jsp/providerlist";
